@@ -12,10 +12,12 @@ export const AppContainer = styled.div`
 
 interface DragPreviewContainerProps {
   isHidden?: boolean;
+  isPreview?: boolean;
 }
 
 export const DragPreviewContainer = styled.div<DragPreviewContainerProps>`
-  opacity: ${(props) => (props.isHidden ? 0.3 : 1)};
+  opacity: ${(props) => (props.isHidden ? 0 : 1)};
+  transform: ${(props) => (props.isPreview ? 'rotate(5deg)' : undefined)};
 `;
 
 export const ColumnContainer = styled(DragPreviewContainer)`
@@ -89,3 +91,32 @@ export const NewItemInput = styled.input`
   padding: 0.5rem 1rem;
   width: 100%;
 `;
+
+export const CustomDragLayerContainer = styled.div`
+  height: 100%;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  position: fixed;
+  width: 100%;
+  z-index: 100;
+`;
+
+type DragPreviewWrapperProps = {
+  position: {
+    x: number;
+    y: number;
+  };
+};
+
+// By default for every property passed to the styled component it will generate new CSS class
+// -> performance overhead
+// Thus, we use `attrs` method to assign the styles attribute instead of generating a new class everytime position changes
+// This moves following the cursor, thus making the column move
+export const DragPreviewWrapper = styled.div.attrs<DragPreviewWrapperProps>(
+  ({ position: { x, y } }) => ({
+    style: {
+      transform: `translate(${x}px, ${y}px)`,
+    },
+  })
+)<DragPreviewWrapperProps>``;
