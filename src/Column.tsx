@@ -3,7 +3,7 @@ import { useDrop } from 'react-dnd';
 import { throttle } from 'throttle-debounce-ts';
 import { AddNewItem } from './AddNewItem';
 import { Card } from './Card';
-import { addTask, moveList } from './state/action';
+import { addTask, moveList, moveTask, setDraggedItem } from './state/action';
 import { useAppState } from './state/AppStateContext';
 import { ColumnContainer, ColumnTitle } from './style';
 import { isHidden } from './utils/isHidden';
@@ -19,7 +19,7 @@ export const Column = ({ text, id, isPreview }: ColumnProps) => {
   const { getTasksByListId, dispatch, draggedItem } = useAppState();
   const ref = useRef<HTMLDivElement>(null);
   const [, drop] = useDrop({
-    accept: 'COLUMN',
+    accept: ['COLUMN', 'CARD'],
     hover: throttle(200, () => {
       if (!draggedItem) {
         return;
@@ -31,6 +31,19 @@ export const Column = ({ text, id, isPreview }: ColumnProps) => {
         }
 
         dispatch(moveList(draggedItem.id, id));
+      } else {
+        // When dropping to the same column, let the logic in Card handle the drop
+        if (draggedItem.columnId === id) {
+          return;
+        }
+
+        // When dropping to a column with other tasks, let the logic in Card handle the drop
+        if (tasks.length) {
+          return;
+        }
+
+        dispatch(moveTask(draggedItem.id, null, draggedItem.columnId, id));
+        dispatch(setDraggedItem({ ...draggedItem, columnId: id }));
       }
     }),
   });
