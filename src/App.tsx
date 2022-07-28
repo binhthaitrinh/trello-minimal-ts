@@ -1,4 +1,3 @@
-import React from 'react';
 import { AddNewItem } from './AddNewItem';
 import { Column } from './Column';
 import { CustomDragLayer } from './CustomDragLayer';

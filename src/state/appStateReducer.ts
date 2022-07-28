@@ -49,5 +49,28 @@ export const appStateReducer = (
       draft.draggedItem = action.payload;
       break;
     }
+    case 'MOVE_TASK': {
+      const { draggedItemId, hoveredItemId, sourceColumnId, targetColumnId } =
+        action.payload;
+      const sourceListIndex = findItemIndexById(draft.lists, sourceColumnId);
+      const targetListIndex = findItemIndexById(draft.lists, targetColumnId);
+      const dragIndex = findItemIndexById(
+        draft.lists[sourceListIndex].tasks,
+        draggedItemId
+      );
+      // In case we drag the card to an empty column, we'll pass `null` as hoverId for the card
+      const hoverIndex = hoveredItemId
+        ? findItemIndexById(draft.lists[targetListIndex].tasks, hoveredItemId)
+        : 0;
+      const item = draft.lists[sourceListIndex].tasks[dragIndex];
+
+      // Remove task from source list
+      draft.lists[sourceListIndex].tasks.splice(dragIndex, 1);
+
+      // Add task to target list
+      draft.lists[targetListIndex].tasks.splice(hoverIndex, 0, item);
+
+      break;
+    }
   }
 };
